@@ -1,0 +1,98 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}분석 #{{ job.id|stringformat:'03d' }}{% endblock %}
+{% block section %}분석 상세{% endblock %}
+{% block content %}
+<a class="back" href="{% url 'analyses:index' %}"><i data-lucide="arrow-left"></i>분석 화면으로</a>
+<div class="page-head" id="job-detail" data-job-id="{{ job.id }}" data-finished="{{ job.is_finished|yesno:'1,0' }}">
+  <div>
+    <h1 class="page-title"><span class="job-chip" style="font-size:20px">#{{ job.id|stringformat:'03d' }}</span>
+      <span id="detail-title">{{ job.title|default:'제목 없음' }}</span></h1>
+    <p class="page-sub">{{ job.user.username }} · {{ job.get_input_type_display }}{% if job.camera_key %} ({{ job.camera_key }}){% endif %} · {{ job.created_at|date:'Y.m.d H:i' }}</p>
+  </div>
+  <span class="pill {{ job.status }}" style="height:32px;padding:0 14px;font-size:14px">{{ job.get_status_display }}{% if not job.is_finished %} · {{ job.get_stage_display }}{% endif %}</span>
+</div>
+
+<div class="grid-2">
+  <section class="card">
+    <div class="card-head">
+      <div class="card-title"><span class="ic"><i data-lucide="monitor-play"></i></span>영상</div>
+      {% if job.keyframe and job.video %}
+        <div class="card-actions"><div class="seg"><button type="button" class="active" data-show="overlay">Skeleton Overlay</button><button type="button" data-show="video">원본 영상</button></div></div>
+      {% endif %}
+    </div>
+    <div class="card-body">
+      {% if job.keyframe %}
+        <div class="preview" data-view="overlay"><img class="frame" src="{{ job.keyframe.url }}" alt="Skeleton Overlay"><span class="preview-badge mint"><i data-lucide="bone"></i>Skeleton Overlay</span></div>
+      {% endif %}
+      {% if job.video %}
+        <div class="preview{% if job.keyframe %} hidden{% endif %}" data-view="video"><video src="{{ job.video.url }}" controls playsinline muted></video></div>
+      {% endif %}
+      {% if not job.keyframe and not job.video %}
+        <div class="preview"><div class="empty"><span class="ring"><i data-lucide="video-off"></i></span><b>저장된 영상이 없습니다</b>
+          <span>{% if job.input_type == 'ip_webcam' %}카메라 수집 전에 작업이 끝났습니다{% else %}파일이 삭제되었습니다{% endif %}</span></div></div>
+      {% endif %}
+    </div>
+  </section>
+
+  <div class="stack">
+    <section class="card">
+      <div class="card-head"><div class="card-title"><span class="ic"><i data-lucide="list-checks"></i></span>사람별 예측</div></div>
+      <div class="card-body">
+        {% if job.status == 'FAILURE' %}
+          <div class="alert error"><i data-lucide="octagon-x"></i><div><b>분석에 실패했습니다</b>{{ job.error_message }}</div></div>
+        {% elif job.predictions.all %}
+          <div class="table-wrap"><table class="table">
+            <thead><tr><th>Track ID</th><th>예측 동작</th><th>신뢰도</th><th class="num">Window · Frame</th></tr></thead>
+            <tbody>
+            {% for p in job.predictions.all %}
+              <tr>
+                <td><span class="track-chip">#{{ p.track_id }}</span></td>
+                <td><div class="action-cell"><b>{{ p.get_action_label_display|slice:'5:' }}</b><small>{{ p.action_label }}</small></div></td>
+                <td><div class="conf"><div class="conf-top"><span class="conf-val">{% widthratio p.confidence 1 100 %}%</span>
+                  {% if p.is_uncertain %}<span class="badge uncertain"><i data-lucide="circle-help"></i>판단 불확실</span>{% endif %}</div>
+                  <div class="conf-bar{% if p.is_uncertain %} warn{% endif %}"><i style="width:{% widthratio p.confidence 1 100 %}%"></i></div></div></td>
+                <td class="num muted">{{ p.window_count }} · {{ p.valid_frame_count }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table></div>
+        {% elif job.is_finished %}
+          <div class="empty-state"><span class="ring"><i data-lucide="user-x"></i></span><b>{{ job.result_message|default:'예측 결과가 없습니다' }}</b></div>
+        {% else %}
+          <div class="empty-state"><span class="ring"><i data-lucide="loader"></i></span><b>분석 중입니다</b><span>완료되면 자동으로 새로고침됩니다.</span></div>
+        {% endif %}
+
+        <div class="meta-grid">
+          <div class="meta-item"><div class="k"><i data-lucide="target"></i>수행하려는 동작</div><div class="v">{{ job.get_expected_action_display|default:'선택 안 함' }}</div></div>
+          <div class="meta-item"><div class="k"><i data-lucide="timer"></i>AI 처리 시간</div><div class="v">{% if job.processing_time_sec %}{{ job.processing_time_sec|floatformat:2 }}초{% else %}-{% endif %}</div></div>
+          <div class="meta-item"><div class="k"><i data-lucide="film"></i>Frame 수</div><div class="v">{{ job.frame_count|default:'-' }}</div></div>
+          <div class="meta-item"><div class="k"><i data-lucide="clock"></i>완료 시간</div><div class="v">{{ job.completed_at|date:'m.d H:i:s'|default:'-' }}</div></div>
+          <div class="meta-item wide"><div class="k"><i data-lucide="hash"></i>Celery task</div><div class="v mono" style="font-weight:500;font-size:12.5px;word-break:break-all">{{ job.celery_task_id|default:'-' }}</div></div>
+        </div>
+      </div>
+    </section>
+
+    {% if job.user == user %}
+    <section class="card">
+      <div class="card-head"><div class="card-title"><span class="ic"><i data-lucide="pencil-line"></i></span>제목 · 메모</div></div>
+      <div class="card-body">
+        <form id="edit-form" class="stack" style="gap:14px">
+          <div class="field"><label for="e-title">제목</label><input class="input" id="e-title" name="title" maxlength="100" value="{{ job.title }}"></div>
+          <div class="field"><label for="e-memo">메모</label><textarea class="input" id="e-memo" name="memo" rows="3">{{ job.memo }}</textarea></div>
+          <div style="display:flex;gap:8px;justify-content:space-between;flex-wrap:wrap">
+            <button type="button" class="btn danger" id="delete-btn"{% if not job.is_finished %} disabled title="분석이 끝난 뒤에 삭제할 수 있습니다"{% endif %}><i data-lucide="trash-2"></i>기록 삭제</button>
+            <button type="submit" class="btn primary"><i data-lucide="save"></i>저장</button>
+          </div>
+          <p class="muted" style="font-size:12.5px">상태와 AI 예측 결과는 수정할 수 없습니다.</p>
+        </form>
+      </div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+{% csrf_token %}
+{% endblock %}
+{% block scripts %}
+<script src="{% static 'js/analyses.js' %}"></script>
+{% endblock %}

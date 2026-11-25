@@ -1,0 +1,49 @@
+{% load static %}<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Vision AI{% endblock %} · Vision AI</title>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap">
+  <link rel="stylesheet" href="{% static 'css/app.css' %}">
+  {% block head %}{% endblock %}
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <a class="brand" href="{% url 'analyses:index' %}">
+      <span class="brand-mark"><i data-lucide="graduation-cap"></i></span>
+      <span>Vision AI</span>
+      <span class="brand-sep"></span>
+      <span class="brand-section">{% block section %}동작 분석{% endblock %}</span>
+    </a>
+    <nav class="nav">
+      {% if user.is_authenticated %}
+        <a href="{% url 'analyses:index' %}" class="{% block nav_index %}{% endblock %}"><i data-lucide="scan-eye"></i><span class="nav-label">AI 분석</span></a>
+        {% if user.is_staff %}
+          <a href="{% url 'analyses:dashboard' %}" class="{% block nav_dash %}{% endblock %}"><i data-lucide="layout-dashboard"></i><span class="nav-label">대시보드</span></a>
+          <a href="{% url 'admin:index' %}" class="ext" target="_blank" rel="noopener"><span class="nav-label">Django Admin</span><i data-lucide="external-link"></i></a>
+        {% endif %}
+        <span class="user-chip"><span class="avatar">{{ user.username|slice:':1' }}</span><span class="name">{{ user.username }}</span></span>
+        <form method="post" action="{% url 'logout' %}" class="inline">
+          {% csrf_token %}<button type="submit" class="nav-btn" title="로그아웃"><i data-lucide="log-out"></i></button>
+        </form>
+      {% else %}
+        <a href="{% url 'login' %}"><i data-lucide="log-in"></i><span class="nav-label">로그인</span></a>
+        <a href="{% url 'signup' %}"><i data-lucide="user-plus"></i><span class="nav-label">회원가입</span></a>
+      {% endif %}
+    </nav>
+  </div>
+</header>
+{% block body %}
+<main class="container">
+  {% block content %}{% endblock %}
+</main>
+{% endblock %}
+<script src="https://unpkg.com/lucide@0.469.0/dist/umd/lucide.min.js"></script>
+<script>window.lucide && lucide.createIcons();</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

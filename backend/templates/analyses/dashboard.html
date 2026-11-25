@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}관리자 대시보드{% endblock %}
+{% block section %}관리자 대시보드{% endblock %}
+{% block nav_dash %}active{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1 class="page-title">Vision AI 관리자 대시보드</h1>
+    <p class="page-sub">전체 사용자의 분석 요청과 사람별 예측을 Django ORM으로 집계한 결과입니다.</p>
+  </div>
+  <a class="btn" href="{% url 'admin:analyses_analysisjob_changelist' %}" target="_blank" rel="noopener"><i data-lucide="table-2"></i>Admin에서 전체 목록</a>
+</div>
+
+<div class="kpis">
+  <div class="card kpi"><span class="ic"><i data-lucide="layers"></i></span>
+    <div><div class="k">전체 분석 작업</div><div class="v">{{ kpis.total_jobs }}<small>건</small></div></div></div>
+  <div class="card kpi"><span class="ic g"><i data-lucide="circle-check"></i></span>
+    <div><div class="k">성공률 (완료 / 종료)</div><div class="v">{% if kpis.success_rate is not None %}{{ kpis.success_rate }}<small>%</small>{% else %}-{% endif %}</div></div></div>
+  <div class="card kpi"><span class="ic b"><i data-lucide="timer"></i></span>
+    <div><div class="k">평균 AI 처리 시간</div><div class="v">{% if kpis.avg_time is not None %}{{ kpis.avg_time }}<small>초</small>{% else %}-{% endif %}</div></div></div>
+  <div class="card kpi"><span class="ic a"><i data-lucide="users"></i></span>
+    <div><div class="k">예측된 사람 (불확실 비율)</div><div class="v">{{ kpis.total_predictions }}<small>명{% if kpis.uncertain_rate is not None %} · {{ kpis.uncertain_rate }}%{% endif %}</small></div></div></div>
+</div>
+
+<div class="grid-2 even">
+  <section class="card">
+    <div class="card-head">
+      <div class="card-title"><span class="ic"><i data-lucide="bar-chart-3"></i></span><div>동작별 예측 건수<div class="card-sub">사람(Track)별 예측 기준 · 6개 Action</div></div></div>
+    </div>
+    <div class="card-body"><div class="chart-box"><canvas id="chart-actions" aria-label="동작별 예측 건수"></canvas></div></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="card-title"><span class="ic"><i data-lucide="pie-chart"></i></span><div>분석 작업 상태별 건수<div class="card-sub">작업(Job) 기준</div></div></div>
+    </div>
+    <div class="card-body">
+      <div class="doughnut-wrap">
+        <div class="chart-box"><canvas id="chart-statuses" aria-label="작업 상태별 건수"></canvas></div>
+        <div class="legend" id="status-legend"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="card-title"><span class="ic"><i data-lucide="split"></i></span><div>입력 방식 비율<div class="card-sub">영상 업로드 · IP Webcam</div></div></div>
+    </div>
+    <div class="card-body"><div class="chart-box sm"><canvas id="chart-inputs"></canvas></div></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div class="card-title"><span class="ic"><i data-lucide="gauge"></i></span><div>입력 방식별 평균 AI 처리 시간<div class="card-sub">완료된 작업 · FastAPI 추론 시간(초)</div></div></div>
+    </div>
+    <div class="card-body"><div class="chart-box sm"><canvas id="chart-avg-time"></canvas></div></div>
+  </section>
+</div>
+
+<section class="card mt-24">
+  <div class="card-head">
+    <div class="card-title"><span class="ic"><i data-lucide="history"></i></span>최근 분석 작업</div>
+    <div class="card-actions"><span class="card-sub">최근 10건</span></div>
+  </div>
+  <div class="card-body flush">
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>작업 ID</th><th>요청 사용자</th><th>입력 방식</th><th>예측 (사람별)</th><th>상태</th><th>생성 시간</th><th></th></tr></thead>
+        <tbody>
+        {% for job in recent_jobs %}
+          <tr>
+            <td><span class="job-chip">#{{ job.id|stringformat:'03d' }}</span></td>
+            <td><span class="cell-user"><span class="avatar sm">{{ job.user.username|slice:':1' }}</span>{{ job.user.username }}</span></td>
+            <td><span class="cell-icon"><i data-lucide="{% if job.input_type == 'ip_webcam' %}cctv{% else %}upload{% endif %}"></i>{{ job.get_input_type_display }}</span></td>
+            <td>{% for p in job.predictions.all %}<span class="badge {% if p.is_uncertain %}uncertain{% else %}neutral{% endif %}" style="margin:2px 4px 2px 0">#{{ p.track_id }} {{ p.get_action_label_display|slice:'5:' }} {% widthratio p.confidence 1 100 %}%</span>{% empty %}<span class="muted">-</span>{% endfor %}</td>
+            <td><span class="pill {{ job.status }}">{{ job.get_status_display }}</span></td>
+            <td class="muted">{{ job.created_at|date:'Y.m.d H:i' }}</td>
+            <td><a class="link-cell" href="{% url 'analyses:detail' job.id %}">상세<i data-lucide="chevron-right"></i></a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7"><div class="empty-state"><span class="ring"><i data-lucide="inbox"></i></span><b>아직 분석 작업이 없습니다</b><span>사용자가 분석을 요청하면 여기에 표시됩니다.</span></div></td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{{ chart_data|json_script:'chart-data' }}
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock %}

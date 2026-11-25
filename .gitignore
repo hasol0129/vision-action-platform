@@ -1,0 +1,30 @@
+# 환경변수·비밀값
+.env
+
+# 가상환경·캐시
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+
+# 영상·실행 중 생성 파일
+sample_videos/
+backend/media/
+backend/staticfiles/
+*.mp4
+*.avi
+*.mov
+*.log
+backend/db.sqlite3
+
+# 학습 캐시
+training/cache/
+
+# 추가 보호
+media/
+staticfiles/
+db.sqlite3
+.env.*
+!.env.example

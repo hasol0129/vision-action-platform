@@ -1,0 +1,80 @@
+# Vision Action Platform: 5개 서비스 (django · fastapi · celery · redis · postgres)
+# 실행: cp .env.example .env  →  docker compose up --build -d
+# 서비스끼리는 localhost가 아니라 서비스 이름(postgres, redis, fastapi)으로 통신한다
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data      # 컨테이너를 지워도 DB 유지
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine                    # Celery 작업 대기열·상태 (영구 업무 데이터 X)
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  fastapi:
+    build: ./ai_service                      # AI 추론 전용. DB에 접근하지 않음
+    env_file: .env
+    volumes:
+      - ./ai_service/models:/app/models:ro
+    ports:
+      - "${FASTAPI_PORT:-8001}:8001"          # 개발용 /docs 확인. 공개가 필요 없으면 이 줄 삭제
+    healthcheck:
+      test: ["CMD", "python", "-c", "import json,urllib.request,sys; d=json.load(urllib.request.urlopen('http://localhost:8001/health')); sys.exit(0 if d.get('model_ready') else 1)"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
+    restart: unless-stopped
+
+  django:
+    build: ./backend
+    env_file: .env
+    command: >
+      sh -c "python manage.py migrate --noinput &&
+             python manage.py collectstatic --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - media:/app/media                     # 업로드 영상 (celery와 공유)
+    ports:
+      - "${DJANGO_PORT:-8000}:8000"          # PC에서 8000번을 이미 쓰면 .env의 DJANGO_PORT로 변경
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  celery:
+    build: ./backend                         # django와 같은 코드·이미지
+    env_file: .env
+    command: celery -A config worker --loglevel=info --concurrency=2
+    volumes:
+      - media:/app/media                     # django가 저장한 영상을 읽고, 카메라 수집 영상을 저장
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      fastapi:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  media:

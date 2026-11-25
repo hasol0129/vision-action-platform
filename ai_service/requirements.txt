@@ -1,0 +1,15 @@
+# 6일차 학습 환경(subject10_pose_action/.venv, Python 3.12)과 같은 버전으로 고정
+numpy==2.5.4
+pandas==3.1.1
+scikit-learn==1.9.1
+scipy==1.18.1
+joblib==1.6.0
+torch==2.15.0
+torchvision==0.29.2
+ultralytics==8.4.203
+opencv-python-headless==5.0.0.93
+lap==0.5.14
+# API 서버
+fastapi==0.165.0
+uvicorn[standard]==0.54.0
+python-multipart==0.0.34

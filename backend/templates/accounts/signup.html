@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}회원가입{% endblock %}
+{% block section %}회원가입{% endblock %}
+{% block body %}
+<main class="auth">
+  <div class="card auth-card">
+    {% include 'accounts/_auth_side.html' %}
+    <form method="post" class="auth-form" novalidate>
+      {% csrf_token %}
+      <div>
+        <h1>회원가입</h1>
+        <p class="muted" style="margin-top:6px">가입하면 바로 로그인되어 분석을 시작할 수 있습니다.</p>
+      </div>
+      {% for error in form.non_field_errors %}
+        <div class="alert error"><i data-lucide="circle-alert"></i><div>{{ error }}</div></div>
+      {% endfor %}
+      <div class="field">
+        <label for="id_username">아이디</label>
+        <input class="input" type="text" name="username" id="id_username" value="{{ form.username.value|default:'' }}" maxlength="150" autocomplete="username" autofocus required>
+        {% for e in form.username.errors %}<span class="field-error">{{ e }}</span>{% empty %}<span class="hint" style="font-size:12px;color:var(--subtle)">150자 이하 · 영문, 숫자, @/./+/-/_</span>{% endfor %}
+      </div>
+      <div class="field">
+        <label for="id_password1">비밀번호</label>
+        <input class="input" type="password" name="password1" id="id_password1" autocomplete="new-password" required>
+        {% for e in form.password1.errors %}<span class="field-error">{{ e }}</span>{% empty %}<span class="hint" style="font-size:12px;color:var(--subtle)">8자 이상 · 숫자로만 된 비밀번호, 흔한 비밀번호는 사용할 수 없습니다</span>{% endfor %}
+      </div>
+      <div class="field">
+        <label for="id_password2">비밀번호 확인</label>
+        <input class="input" type="password" name="password2" id="id_password2" autocomplete="new-password" required>
+        {% for e in form.password2.errors %}<span class="field-error">{{ e }}</span>{% endfor %}
+      </div>
+      <button type="submit" class="btn primary" style="height:48px;font-size:15px"><i data-lucide="user-plus"></i>가입하기</button>
+      <p class="muted" style="text-align:center">이미 계정이 있나요? <a href="{% url 'login' %}">로그인</a></p>
+    </form>
+  </div>
+</main>
+{% endblock %}

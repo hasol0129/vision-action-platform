@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>설치·실행 가이드 · Vision Action Platform</title>
+<style>
+:root{--bg:#f4f5fb;--card:#fff;--ink:#161a2e;--sub:#5d6280;--line:#e6e8f2;--pri:#3b3fd8;--pri50:#eef0ff;--navy:#2c3570;--ok:#16a34a;--ok50:#ecfdf3;--warn50:#fff8eb;--bad50:#fef1f1;--code:#0f1222}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Pretendard,"Malgun Gothic","Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:15.5px;line-height:1.7;letter-spacing:-.01em}
+header{background:var(--navy);color:#fff;padding:34px 24px 30px}
+header .in,main{max-width:980px;margin:0 auto}
+header h1{margin:0;font-size:30px;letter-spacing:-.03em}
+header p{margin:8px 0 0;color:rgba(255,255,255,.78)}
+header .chips{margin-top:16px;display:flex;flex-wrap:wrap;gap:8px}
+header .chips span{background:rgba(255,255,255,.12);border-radius:999px;padding:4px 12px;font-size:13px}
+main{padding:28px 20px 80px}
+nav.toc{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px 22px;margin-bottom:26px}
+nav.toc b{display:block;margin-bottom:6px}
+nav.toc ol{margin:0;padding-left:20px;columns:2;column-gap:32px}
+nav.toc a{color:var(--pri);text-decoration:none}
+section{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:24px 26px;margin-bottom:22px;box-shadow:0 1px 2px rgba(22,26,46,.04),0 8px 24px -10px rgba(22,26,46,.08)}
+h2{margin:0 0 6px;font-size:21px;letter-spacing:-.02em;display:flex;align-items:center;gap:12px}
+h2 .n{display:inline-grid;place-items:center;width:32px;height:32px;border-radius:10px;background:var(--pri);color:#fff;font-size:15px}
+h3{font-size:16.5px;margin:22px 0 6px}
+.lead{color:var(--sub);margin:0 0 14px}
+.step{display:grid;grid-template-columns:28px 1fr;gap:10px;margin:14px 0}
+.step .k{width:26px;height:26px;border-radius:50%;background:var(--pri50);color:var(--pri);display:grid;place-items:center;font-weight:700;font-size:13px;margin-top:2px}
+pre{position:relative;background:var(--code);color:#e6e8ff;border-radius:12px;padding:14px 16px;overflow-x:auto;font:13.5px/1.6 "JetBrains Mono",Consolas,monospace;margin:8px 0}
+pre .c{color:#8b93c9}
+pre button{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.1);color:#fff;border:0;border-radius:7px;padding:4px 10px;font-size:12px;cursor:pointer}
+pre button:hover{background:rgba(255,255,255,.2)}
+code{font-family:"JetBrains Mono",Consolas,monospace;background:var(--pri50);color:#2a2ea6;border-radius:6px;padding:1px 6px;font-size:.9em}
+pre code{background:none;color:inherit;padding:0}
+.where{display:inline-block;font-size:12px;font-weight:700;border-radius:6px;padding:2px 8px;margin-right:6px;vertical-align:1px}
+.where.wsl{background:#e0f2fe;color:#0369a1}.where.win{background:#f1f5f9;color:#334155}.where.web{background:var(--ok50);color:var(--ok)}
+table{width:100%;border-collapse:separate;border-spacing:0;font-size:14.5px;margin:10px 0}
+th{background:#f1f2fd;text-align:left;padding:10px 12px;font-weight:700}
+th:first-child{border-radius:10px 0 0 10px}th:last-child{border-radius:0 10px 10px 0}
+td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.box{border-radius:12px;padding:12px 16px;margin:12px 0;font-size:14.5px}
+.box.ok{background:var(--ok50);border:1px solid #c6f0d5}
+.box.warn{background:var(--warn50);border:1px solid #fde3b3;color:#6b3d06}
+.box.bad{background:var(--bad50);border:1px solid #fbd0cc;color:#7a1b13}
+.box b{display:block;margin-bottom:2px}
+.check{list-style:none;padding:0;margin:8px 0}
+.check li{padding:6px 0 6px 28px;position:relative;border-bottom:1px dashed var(--line)}
+.check li::before{content:"";position:absolute;left:2px;top:12px;width:14px;height:14px;border:2px solid var(--pri);border-radius:4px}
+details{border:1px solid var(--line);border-radius:12px;padding:10px 16px;margin:10px 0;background:#fafbff}
+details summary{cursor:pointer;font-weight:700}
+.muted{color:var(--sub);font-size:14px}
+footer{text-align:center;color:var(--sub);font-size:13px;margin-top:30px}
+@media (max-width:640px){nav.toc ol{columns:1}section{padding:20px 18px}header h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header><div class="in">
+  <h1>Vision Action Platform 설치·실행 가이드</h1>
+  <p>zip 파일을 받은 사람이 처음부터 끝까지 그대로 따라 하면 실행되도록 정리했습니다. 모든 명령은 실제로 새 폴더에 압축을 풀어 순서대로 실행해 확인했습니다.</p>
+  <div class="chips"><span>Windows 11 + WSL2 Ubuntu</span><span>Docker Desktop</span><span>컨테이너 5개</span><span>처음 1회 약 10~20분</span></div>
+</div></header>
+
+<main>
+<nav class="toc"><b>목차</b><ol start="0">
+  <li><a href="#s0">준비물 확인</a></li>
+  <li><a href="#s1">zip 압축 풀기</a></li>
+  <li><a href="#s2">설정 파일(.env) 만들기</a></li>
+  <li><a href="#s3">한 번에 실행하기</a></li>
+  <li><a href="#s4">관리자 계정 만들기</a></li>
+  <li><a href="#s5">접속 주소</a></li>
+  <li><a href="#s6">사용해 보기 (업로드 · IP Webcam)</a></li>
+  <li><a href="#s7">제대로 되는지 확인하기</a></li>
+  <li><a href="#s8">끄기 · 다시 켜기</a></li>
+  <li><a href="#s9">테스트 코드 실행 (선택)</a></li>
+  <li><a href="#s10">문제가 생겼을 때</a></li>
+  <li><a href="#s11">다음에 읽을 것</a></li>
+</ol></nav>
+
+<p class="muted"><span class="where wsl">WSL</span> Ubuntu 터미널에 입력 · <span class="where win">Windows</span> PowerShell/탐색기 · <span class="where web">브라우저</span> 주소창. 회색 상자 오른쪽 위 <b>복사</b> 버튼으로 명령을 복사할 수 있습니다.</p>
+
+<section id="s0">
+  <h2><span class="n">0</span>준비물 확인</h2>
+  <p class="lead">이 프로젝트는 Docker 컨테이너 5개(django · fastapi · celery · redis · postgres)로 돌아갑니다. 파이썬·DB를 PC에 따로 설치할 필요는 없습니다.</p>
+  <table>
+    <tr><th>필요한 것</th><th>확인 방법</th></tr>
+    <tr><td>WSL2 + Ubuntu</td><td><span class="where win">Windows</span> <code>wsl -l -v</code> → Ubuntu의 VERSION이 2</td></tr>
+    <tr><td>Docker Desktop (실행 중)</td><td>작업표시줄 고래 아이콘이 켜져 있음</td></tr>
+    <tr><td>Docker를 WSL에서 쓰도록 연결</td><td>Docker Desktop → Settings → Resources → <b>WSL integration</b> → Ubuntu 켜기 → Apply</td></tr>
+    <tr><td>디스크 여유 10GB 이상</td><td>AI 라이브러리(PyTorch 등) 이미지가 큽니다</td></tr>
+    <tr><td>(IP Webcam을 쓸 때) 휴대폰 카메라 앱</td><td>DroidCam(포트 4747) 또는 IP Webcam(포트 8080), PC와 <b>같은 와이파이</b></td></tr>
+  </table>
+  <div class="step"><span class="k">1</span><div>Ubuntu 터미널에서 Docker가 보이는지 확인합니다.
+<pre><code>docker version --format "{{.Server.Version}}"
+docker compose version</code></pre>
+  숫자 버전이 나오면 준비 완료입니다. <code>docker: command not found</code>가 나오면 위 표의 <b>WSL integration</b>을 켜고 터미널을 다시 여세요.</div></div>
+</section>
+
+<section id="s1">
+  <h2><span class="n">1</span>zip 압축 풀기</h2>
+  <p class="lead">Windows 폴더(/mnt/d/...)에서 바로 실행해도 되지만, WSL 안(홈 폴더)에 풀면 빌드와 파일 읽기가 훨씬 빠릅니다.</p>
+  <div class="step"><span class="k">1</span><div><span class="where wsl">WSL</span> zip을 WSL 홈으로 복사하고 압축을 풉니다. (zip이 다른 곳에 있으면 경로만 바꾸세요)
+<pre><code>mkdir -p ~/vap && cd ~/vap
+cp "/mnt/d/dev2/hasol/교과 10 자세추정/10일 수업/교과10 최종프로젝트/vision_action_platform_final.zip" .
+unzip -q vision_action_platform_final.zip
+cd vision_action_platform
+ls</code></pre>
+  <code>CODE_GUIDE.md  README.md  ai_service  backend  compose.yaml  docs</code> 이 보이면 성공입니다.</div></div>
+  <div class="box warn"><b>이 PC에 이미 돌아가고 있는 프로젝트가 있다면</b>
+  같은 이름의 컨테이너·DB를 같이 쓰게 되어 꼬일 수 있습니다. 2단계에서 <code>COMPOSE_PROJECT_NAME</code>을 다른 이름(예: <code>vap_zip</code>)으로 바꾸고, 기존 것은 먼저 끄세요: 기존 폴더에서 <code>docker compose down</code> (데이터는 남습니다).</div>
+  <p class="muted">unzip이 없다고 나오면: <code>sudo apt install -y unzip</code></p>
+</section>
+
+<section id="s2">
+  <h2><span class="n">2</span>설정 파일(.env) 만들기</h2>
+  <p class="lead">비밀번호·포트·카메라 주소는 코드가 아니라 <code>.env</code>에 둡니다. <code>.env</code>는 Git과 zip에 들어가지 않습니다.</p>
+  <div class="step"><span class="k">1</span><div><span class="where wsl">WSL</span> 예시 파일을 복사합니다.
+<pre><code>cp .env.example .env</code></pre></div></div>
+  <div class="step"><span class="k">2</span><div><span class="where wsl">WSL</span> 비밀키와 DB 비밀번호를 무작위 값으로 채웁니다. (그대로 복사해 실행)
+<pre><code>SECRET=$(python3 -c "import secrets; print(secrets.token_urlsafe(48))")
+DBPASS=$(python3 -c "import secrets; print(secrets.token_urlsafe(18))")
+sed -i "s|^DJANGO_SECRET_KEY=.*|DJANGO_SECRET_KEY=$SECRET|; s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$DBPASS|" .env
+grep -c change-me .env   <span class="c"># 0 이 나오면 OK</span></code></pre></div></div>
+  <div class="step"><span class="k">3</span><div>필요하면 나머지 값을 고칩니다: <code>nano .env</code> (저장: Ctrl+O → Enter, 나가기: Ctrl+X)
+  <table>
+    <tr><th>변수</th><th>기본값</th><th>언제 바꾸나</th></tr>
+    <tr><td><code>DJANGO_PORT</code></td><td>8000</td><td>8000번을 다른 프로그램이 쓰면(접속이 안 되면) 8010 등으로. <b>바꾸면 바로 위 <code>DJANGO_CSRF_TRUSTED_ORIGINS</code>의 포트도 같이 변경</b></td></tr>
+    <tr><td><code>FASTAPI_PORT</code></td><td>8001</td><td>8001이 이미 쓰이고 있을 때</td></tr>
+    <tr><td><code>ALLOWED_CAMERA_URLS</code></td><td>예시 주소</td><td>휴대폰 카메라 주소. DroidCam: <code>phone1=http://&lt;폰IP&gt;:4747/video</code> · IP Webcam: <code>phone1=http://&lt;폰IP&gt;:8080/video</code></td></tr>
+    <tr><td><code>CAMERA_ROTATE</code></td><td>0</td><td>카메라 영상이 옆으로 누워 보이면 <code>90</code> (반대로 누우면 <code>270</code>)</td></tr>
+    <tr><td><code>CAMERA_CAPTURE_SECONDS</code></td><td>8</td><td>IP Webcam 수집 시간(초)</td></tr>
+    <tr><td><code>UNCERTAIN_THRESHOLD</code></td><td>0.4</td><td>이 값보다 신뢰도가 낮으면 "판단 불확실" 표시</td></tr>
+    <tr><td><code>COMPOSE_PROJECT_NAME</code></td><td>vision_action_platform</td><td>같은 PC에서 두 벌을 띄울 때만 다른 이름</td></tr>
+  </table>
+  <p class="muted">휴대폰 IP는 DroidCam·IP Webcam 앱 첫 화면에 나옵니다 (예: 192.168.x.x). 카메라 주소는 서버 설정에만 있고 브라우저에는 노출되지 않습니다.</p></div></div>
+</section>
+
+<section id="s3">
+  <h2><span class="n">3</span>한 번에 실행하기</h2>
+  <div class="step"><span class="k">1</span><div><span class="where wsl">WSL</span> 이미지를 만들고 5개 서비스를 켭니다. <b>처음 한 번은 10~20분</b> 걸립니다 (PyTorch·YOLO 등 다운로드). 두 번째부터는 몇 초입니다.
+<pre><code>docker compose up --build -d</code></pre></div></div>
+  <div class="step"><span class="k">2</span><div><span class="where wsl">WSL</span> 상태를 확인합니다. fastapi가 <b>healthy</b>가 될 때까지 1분쯤 걸릴 수 있습니다 (AI 모델 로딩).
+<pre><code>docker compose ps</code></pre>
+  <div class="box ok"><b>정상 상태</b>django · celery · fastapi · postgres · redis 5개 모두 <code>running</code>, fastapi · postgres · redis 는 <code>healthy</code></div>
+  DB 테이블 만들기(마이그레이션)는 django 컨테이너가 켜질 때 <b>자동으로</b> 실행됩니다. 직접 하려면: <code>docker compose exec django python manage.py migrate</code></div></div>
+</section>
+
+<section id="s4">
+  <h2><span class="n">4</span>관리자 계정 만들기</h2>
+  <div class="step"><span class="k">1</span><div><span class="where wsl">WSL</span> 아이디·이메일·비밀번호를 물어보면 입력합니다 (비밀번호는 화면에 안 보이는 게 정상).
+<pre><code>docker compose exec django python manage.py createsuperuser</code></pre>
+  관리자 계정으로 로그인해야 <b>/dashboard/</b>와 <b>/admin/</b>이 열립니다. 일반 회원은 웹 화면의 회원가입으로 만듭니다.</div></div>
+</section>
+
+<section id="s5">
+  <h2><span class="n">5</span>접속 주소</h2>
+  <p class="lead">아래는 기본 포트 기준입니다. <code>DJANGO_PORT</code>를 바꿨다면 8000 대신 그 번호를 쓰세요.</p>
+  <table>
+    <tr><th>화면</th><th>주소</th><th>누가</th></tr>
+    <tr><td>회원가입</td><td><span class="where web">브라우저</span> <code>http://localhost:8000/accounts/signup/</code></td><td>누구나</td></tr>
+    <tr><td>로그인</td><td><code>http://localhost:8000/accounts/login/</code></td><td>누구나</td></tr>
+    <tr><td>AI 분석 화면</td><td><code>http://localhost:8000/analyses/</code> (그냥 <code>/</code>로 들어가도 이동)</td><td>로그인한 회원</td></tr>
+    <tr><td>관리자 대시보드</td><td><code>http://localhost:8000/dashboard/</code></td><td>관리자만</td></tr>
+    <tr><td>Django Admin</td><td><code>http://localhost:8000/admin/</code></td><td>관리자만</td></tr>
+    <tr><td>FastAPI 문서(Swagger)</td><td><code>http://localhost:8001/docs</code></td><td>개발 확인용</td></tr>
+    <tr><td>AI 서버 상태</td><td><code>http://localhost:8001/health</code></td><td>개발 확인용</td></tr>
+  </table>
+</section>
+
+<section id="s6">
+  <h2><span class="n">6</span>사용해 보기</h2>
+  <h3>A. 영상 업로드</h3>
+  <div class="step"><span class="k">1</span><div>회원가입 후 자동 로그인되면 <b>AI 분석</b> 화면이 열립니다.</div></div>
+  <div class="step"><span class="k">2</span><div><b>영상 업로드</b> 탭에서 파일을 선택하거나 미리보기 칸에 끌어다 놓습니다. 시연용 영상은 Windows의 <code>교과10 최종프로젝트\demo\</code> 폴더에 있습니다.</div></div>
+  <div class="step"><span class="k">3</span><div>(선택) <b>수행하려는 동작</b>을 고르고 <b>AI 분석 시작</b>을 누릅니다. 오른쪽에서 <b>대기 → 영상 수집 → AI 분석 → 완료</b>가 차례로 바뀌고, 끝나면 사람별 결과 표와 관절(Skeleton Overlay) 이미지가 나옵니다.</div></div>
+  <table>
+    <tr><th>demo 폴더 영상</th><th>기본 모델로 나오는 결과</th></tr>
+    <tr><td><code>01_정상_sit_stand.mp4</code></td><td>앉았다 일어나기 66.7% (확인)</td></tr>
+    <tr><td><code>01_정상_walk_turn_walk.mp4</code></td><td>걷다가 방향 바꾸기 66.3% (확인)</td></tr>
+    <tr><td><code>01_정상_bend_return.mp4</code></td><td>허리 굽혔다 펴기 65.3% (확인)</td></tr>
+    <tr><td><code>02_두명_SBU.mp4</code></td><td>사람 2명이 Track #1·#2로 따로 저장, 둘 다 판단 불확실</td></tr>
+    <tr><td><code>03_학습안한동작_a14_s07_e03.mp4</code></td><td>18.7% 판단 불확실 (모르는 동작을 낮게 판단)</td></tr>
+    <tr><td><code>04_깨진파일.mp4</code></td><td>실패 · "영상 파일을 열 수 없습니다."</td></tr>
+  </table>
+  <h3>B. IP Webcam (휴대폰 카메라)</h3>
+  <div class="step"><span class="k">1</span><div>휴대폰에서 DroidCam(또는 IP Webcam) 앱을 켜고 <b>화면을 켠 채</b> 둡니다. 앱이 백그라운드로 가면 연결이 끊깁니다.</div></div>
+  <div class="step"><span class="k">2</span><div><code>.env</code>의 <code>ALLOWED_CAMERA_URLS</code>에 휴대폰 주소를 넣었다면 적용합니다:
+<pre><code>docker compose up -d</code></pre></div></div>
+  <div class="step"><span class="k">3</span><div>분석 화면 → <b>IP Webcam</b> 탭 → <b>phone1</b>. 미리보기에 <b>LIVE</b>가 뜨면 <b>AI 분석 시작</b>을 누르고, 8초 동안 카메라 앞에서 <b>전신이 보이게</b> 동작합니다.</div></div>
+  <div class="box warn"><b>DroidCam은 한 번에 한 곳만 연결됩니다</b>분석 중에는 미리보기가 자동으로 멈췄다가 끝나면 다시 켜집니다. 다른 PC·브라우저에서 DroidCam 화면을 열어두면 "카메라가 다른 곳에서 사용 중입니다"가 뜹니다.</div>
+</section>
+
+<section id="s7">
+  <h2><span class="n">7</span>제대로 되는지 확인하기</h2>
+  <p class="lead">과제의 기능 테스트(T01~T10)를 직접 확인하는 방법입니다.</p>
+  <ul class="check">
+    <li><b>T01 모델</b> — <code>http://localhost:8001/health</code> 에 <code>"model_ready":true</code>, <code>"feature_count":1140</code>, 6개 class</li>
+    <li><b>T02 업로드</b> — demo 영상 업로드 → 완료 + 사람별 결과</li>
+    <li><b>T03 IP Webcam</b> — phone1로 8초 수집 → 완료</li>
+    <li><b>T04 사람별</b> — <code>02_두명_SBU.mp4</code> → Track #1·#2 두 줄</li>
+    <li><b>T05 비동기</b> — 분석 시작을 누르자마자 작업 번호(#001 등)가 뜨고 "대기"부터 진행</li>
+    <li><b>T06 저장</b> — 새로고침해도 최근 분석 이력에 그대로</li>
+    <li><b>T07 권한</b> — 다른 아이디로 로그인하면 남의 기록이 안 보임 (주소로 열어도 404)</li>
+    <li><b>T08 관리자</b> — 관리자로 <code>/dashboard/</code> 차트 2개 확인, 일반 회원은 접근 불가</li>
+    <li><b>T09 오류</b> — <code>04_깨진파일.mp4</code> → 실패 사유 표시 / 카메라 앱을 끄고 분석 → 연결 실패 표시</li>
+    <li><b>T10 재시작</b> — <code>docker compose down</code> → <code>docker compose up -d</code> 후에도 기록이 그대로</li>
+  </ul>
+  <details><summary>로그로 흐름 보기 (Celery가 작업을 받고 끝내는 것)</summary>
+<pre><code>docker compose logs -f celery   <span class="c"># 끝낼 때 Ctrl+C</span>
+docker compose logs -f fastapi</code></pre></details>
+</section>
+
+<section id="s8">
+  <h2><span class="n">8</span>끄기 · 다시 켜기</h2>
+  <table>
+    <tr><th>하고 싶은 것</th><th>명령 (<span class="where wsl">WSL</span>, 프로젝트 폴더에서)</th></tr>
+    <tr><td>잠깐 끄기 (데이터 유지)</td><td><code>docker compose stop</code></td></tr>
+    <tr><td>완전히 끄기 (데이터 유지)</td><td><code>docker compose down</code></td></tr>
+    <tr><td>다시 켜기</td><td><code>docker compose up -d</code></td></tr>
+    <tr><td>코드를 고친 뒤 다시 켜기</td><td><code>docker compose up --build -d</code></td></tr>
+  </table>
+  <div class="box bad"><b>주의: <code>docker compose down -v</code></b>회원·분석 기록 DB와 업로드 영상이 모두 <b>삭제</b>됩니다. 처음부터 다시 시작할 때만 쓰세요.</div>
+  <p class="muted">PC를 껐다 켜면 Docker Desktop만 다시 켜면 컨테이너도 자동으로 다시 올라옵니다 (restart: unless-stopped).</p>
+</section>
+
+<section id="s9">
+  <h2><span class="n">9</span>테스트 코드 실행 (선택)</h2>
+  <p class="lead">Docker 없이 Django 자동 테스트 29개를 돌려 봅니다. <code>uv</code>가 필요합니다 (<code>curl -LsSf https://astral.sh/uv/install.sh | sh</code>).</p>
+<pre><code>cd backend
+uv venv --python 3.12 .venv
+VIRTUAL_ENV=.venv uv pip install -r requirements.txt
+USE_SQLITE=1 .venv/bin/python manage.py test   <span class="c"># 마지막 줄 OK</span>
+cd ..</code></pre>
+</section>
+
+<section id="s10">
+  <h2><span class="n">10</span>문제가 생겼을 때</h2>
+  <details open><summary>브라우저에서 접속이 안 되거나 다른 화면(404)이 뜬다</summary>
+  <p>8000번을 다른 프로그램이 쓰고 있는 경우입니다. 확인: <span class="where win">Windows</span> <code>netstat -ano | findstr :8000</code><br>
+  <code>.env</code>에서 <code>DJANGO_PORT=8010</code>, <code>DJANGO_CSRF_TRUSTED_ORIGINS=http://localhost:8010,http://127.0.0.1:8010</code> 로 바꾸고 <code>docker compose up -d</code> → <code>http://localhost:8010</code>.</p></details>
+  <details><summary>로그인·분석 시작 때 "CSRF 검증 실패" (403)</summary>
+  <p>포트를 바꿨는데 <code>DJANGO_CSRF_TRUSTED_ORIGINS</code>를 안 바꾼 경우입니다. 접속 주소와 같은 포트로 맞추고 <code>docker compose up -d</code>.</p></details>
+  <details><summary>WSL에서 <code>docker: command not found</code></summary>
+  <p>Docker Desktop → Settings → Resources → WSL integration → Ubuntu 켜기 → Apply &amp; restart, 터미널 다시 열기.</p></details>
+  <details><summary>Docker Desktop이 오류창을 띄우며 시작이 안 된다</summary>
+  <p><b>"Reset to factory defaults"는 누르지 마세요</b> (모든 이미지와 DB가 지워집니다). 먼저 Docker Desktop을 완전히 종료 → 다시 실행해 보고, 그래도 안 되면 PC 재부팅. 재부팅 직후 <code>docker-secrets-engine</code> 관련 오류라면 <code>%LOCALAPPDATA%\docker-secrets-engine</code> 폴더 이름을 바꾼 뒤(예: 뒤에 <code>.old</code>) Docker Desktop을 다시 켜면 새로 만들어집니다.</p></details>
+  <details><summary>django가 계속 restarting, 로그에 <code>password authentication failed</code></summary>
+  <p>DB(볼륨)를 만들 때의 비밀번호와 지금 <code>.env</code>의 비밀번호가 다른 경우입니다. 데이터를 지키며 맞추기:</p>
+<pre><code>set -a; . ./.env; set +a
+docker compose exec postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "ALTER USER \"$POSTGRES_USER\" WITH PASSWORD '$POSTGRES_PASSWORD';"
+docker compose restart django celery</code></pre>
+  <p class="muted">데이터가 필요 없다면 <code>docker compose down -v</code> 후 다시 <code>up --build -d</code>.</p></details>
+  <details><summary>fastapi가 <code>unhealthy</code> / 분석이 "AI 서버에 연결할 수 없습니다"로 실패</summary>
+  <p>켠 직후 1분은 모델 로딩 중입니다. 계속되면 <code>docker compose logs fastapi</code> 로 원인을 확인하고 <code>http://localhost:8001/health</code>의 <code>error</code>를 봅니다.</p></details>
+  <details><summary>IP Webcam: "카메라에 연결할 수 없습니다"</summary>
+  <p>휴대폰 앱이 켜져 있고 화면이 켜져 있는지, PC와 같은 와이파이인지, <code>.env</code> 주소의 IP·포트가 앱에 표시된 것과 같은지 확인합니다. 확인: <span class="where wsl">WSL</span> <code>curl -s -o /dev/null -m 3 -w "%{http_code}\n" http://&lt;폰IP&gt;:4747/video</code> → 200</p></details>
+  <details><summary>IP Webcam: "카메라가 다른 곳에서 사용 중입니다"</summary>
+  <p>DroidCam은 연결을 하나만 받습니다. 다른 브라우저 탭·PC에서 DroidCam 화면을 닫고, 진행 중인 분석이 끝난 뒤 다시 시도합니다.</p></details>
+  <details><summary>IP Webcam 결과가 이상하다 (사람이 여러 명, 신뢰도가 매우 낮음)</summary>
+  <p>영상이 옆으로 누워 있을 가능성이 큽니다. 결과 화면의 Skeleton Overlay를 보고 누워 있으면 <code>.env</code>에 <code>CAMERA_ROTATE=90</code>(또는 270) → <code>docker compose up -d</code>. 전신이 화면에 들어오게, 한 사람만 나오게 찍습니다.</p></details>
+  <details><summary>신뢰도가 60%대에서 더 올라가지 않는다</summary>
+  <p>정상입니다. 기본 모델은 동작마다 학습 영상이 1개뿐이라 데이터가 부족해 60~70%대가 한계입니다 (README "알려진 한계" 참고). 숫자를 부풀리지 않고 그대로 보여 줍니다.</p></details>
+</section>
+
+<section id="s11">
+  <h2><span class="n">11</span>다음에 읽을 것</h2>
+  <table>
+    <tr><th>파일</th><th>내용</th></tr>
+    <tr><td><code>README.md</code></td><td>프로젝트 소개, 아키텍처·ERD·버튼 흐름·함수 파이프라인 그림, 실행 결과 캡처, T01~T10</td></tr>
+    <tr><td><code>CODE_GUIDE.md</code></td><td>"AI 분석 시작" 버튼 한 번이 지나가는 파일 순서대로 코드 읽기</td></tr>
+  </table>
+</section>
+
+<footer>Vision Action Platform · 교과 10 자세추정 최종 프로젝트</footer>
+</main>
+
+<script>
+document.querySelectorAll('pre').forEach(function (pre) {
+  var b = document.createElement('button');
+  b.type = 'button'; b.textContent = '복사';
+  b.addEventListener('click', function () {
+    var text = pre.querySelector('code').innerText.replace(/\s+#.*$/gm, '');
+    navigator.clipboard.writeText(text).then(function () { b.textContent = '복사됨'; setTimeout(function () { b.textContent = '복사'; }, 1400); });
+  });
+  pre.appendChild(b);
+});
+</script>
+</body>
+</html>
